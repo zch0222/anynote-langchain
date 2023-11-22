@@ -21,7 +21,7 @@ dotenv.load_dotenv()
 print(os.environ["OPENAI_API_KEY"])
 
 
-loader = PyPDFLoader("data/Android.pdf")
+loader = PyPDFLoader("/root/anynote-langchain/data/Android.pdf")
 docs = loader.load()
 
 print(docs[0])
