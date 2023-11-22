@@ -45,6 +45,6 @@ rag_chain = (
     | StrOutputParser()
 )
 
-
-rag_chain.invoke("What is Task Decomposition?")
+for chunk in rag_chain.stream("What is Task Decomposition?"):
+    print(chunk, end="", flush=True)
 
