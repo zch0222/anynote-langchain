@@ -21,7 +21,7 @@ dotenv.load_dotenv()
 print(os.environ["OPENAI_API_KEY"])
 
 
-loader = PyPDFLoader("/root/anynote-langchain/data/2022.pdf")
+loader = PyPDFLoader("/root/anynote-langchain/data/9787302580690.pdf")
 docs = loader.load_and_split()
 
 print(docs)
