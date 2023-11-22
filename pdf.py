@@ -24,7 +24,7 @@ print(os.environ["OPENAI_API_KEY"])
 loader = PyPDFLoader("/root/anynote-langchain/data/Android.pdf")
 docs = loader.load_and_split()
 
-print(docs[0])
+print(docs)
 
 text_splitter = RecursiveCharacterTextSplitter(chunk_size=1000, chunk_overlap=200)
 splits = text_splitter.split_documents(docs)
