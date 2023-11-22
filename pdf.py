@@ -21,8 +21,10 @@ dotenv.load_dotenv()
 print(os.environ["OPENAI_API_KEY"])
 
 
-loader = PDFPlumberLoader("./data/Android.pdf")
+loader = PyPDFLoader("./data/Android.pdf")
 docs = loader.load()
+
+print(docs[0])
 
 text_splitter = RecursiveCharacterTextSplitter(chunk_size=1000, chunk_overlap=200)
 splits = text_splitter.split_documents(docs)
