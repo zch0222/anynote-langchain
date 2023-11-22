@@ -11,6 +11,9 @@ from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain.vectorstores import Chroma
 from langchain.document_loaders import PyPDFLoader
 from langchain.document_loaders import MathpixPDFLoader
+from langchain.document_loaders import PDFPlumberLoader
+
+
 
 
 
@@ -18,7 +21,7 @@ dotenv.load_dotenv()
 print(os.environ["OPENAI_API_KEY"])
 
 
-loader = MathpixPDFLoader("./data/Android.pdf")
+loader = PDFPlumberLoader("./data/Android.pdf")
 docs = loader.load()
 
 text_splitter = RecursiveCharacterTextSplitter(chunk_size=1000, chunk_overlap=200)
