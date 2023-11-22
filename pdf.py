@@ -22,7 +22,7 @@ print(os.environ["OPENAI_API_KEY"])
 
 
 loader = PyPDFLoader("/root/anynote-langchain/data/Android.pdf")
-docs = loader.load()
+docs = loader.load_and_split()
 
 print(docs[0])
 
