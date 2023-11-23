@@ -10,8 +10,9 @@ from langchain.schema.runnable import RunnablePassthrough
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain.vectorstores import Chroma
 from langchain.document_loaders import PyPDFLoader
-from langchain.document_loaders import MathpixPDFLoader
-from langchain.document_loaders import PDFPlumberLoader
+from langchain.agents.agent_toolkits import create_retriever_tool
+from langchain.agents.agent_toolkits import create_conversational_retrieval_agent
+from langchain.chat_models import ChatOpenAI
 
 
 
@@ -19,7 +20,6 @@ from langchain.document_loaders import PDFPlumberLoader
 
 dotenv.load_dotenv()
 print(os.environ["OPENAI_API_KEY"])
-
 
 loader = PyPDFLoader("./data/2022.pdf")
 docs = loader.load_and_split()
@@ -32,23 +32,20 @@ splits = text_splitter.split_documents(docs)
 vectorstore = Chroma.from_documents(documents=splits, embedding=OpenAIEmbeddings())
 retriever = vectorstore.as_retriever()
 
-prompt = hub.pull("rlm/rag-prompt")
-llm = ChatOpenAI(model_name="gpt-3.5-turbo", temperature=0)
-
-
-def format_docs(docs):
-    return "\n\n".join(doc.page_content for doc in docs)
-
-
-rag_chain = (
-    {"context": retriever | format_docs, "question": RunnablePassthrough()}
-    | prompt
-    | llm
-    | StrOutputParser()
+tool = create_retriever_tool(
+    retriever,
+    "search_2022_pdf",
+    "Searches and returns documents regarding the 2022.pdf.",
 )
 
-ask = input("请输入问题：")
+tools = [tool]
 
-for chunk in rag_chain.stream(ask):
-    print(chunk, end="", flush=True)
+llm = ChatOpenAI(temperature=0)
+
+agent_executor = create_conversational_retrieval_agent(llm, tools, verbose=True)
+
+while(True):
+    ask = input("请输入问题：")
+    result = agent_executor({"input": ask})
+    print(result["output"])
 
