@@ -3,6 +3,12 @@ from dotenv import load_dotenv
 from starlette.middleware.cors import CORSMiddleware
 from core import ORIGINS
 from controller import rag_router
+import sys
+
+__import__('pysqlite3')
+
+
+sys.modules['sqlite3'] = sys.modules.pop('pysqlite3')
 
 load_dotenv()
 
