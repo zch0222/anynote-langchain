@@ -12,6 +12,7 @@ from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain.vectorstores import Chroma
 from langchain.document_loaders import PyPDFLoader
 from langchain import hub
+from chromadb.config import Settings
 from langchain.chat_models import ChatOpenAI
 
 from model import PDFRequestDTO
@@ -35,7 +36,7 @@ class RagService:
         splits = text_splitter.split_documents(docs)
         if os.path.exists(index_path) and os.path.isdir(index_path):
             print("use persist")
-            self.vectorstore = Chroma.from_documents(documents=splits, persist_directory=index_path, embedding_function=embeddings)
+            self.vectorstore = Chroma(persist_directory=index_path)
         else:
             print("indexing............")
             self.vectorstore = Chroma.from_documents(documents=splits, embedding=embeddings, persist_directory=index_path)
