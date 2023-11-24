@@ -31,7 +31,7 @@ print(os.environ["OPENAI_API_KEY"])
 
 embeddings = OpenAIEmbeddings()
 
-vectorstore = Chroma(persist_directory="./data/阿里巴巴Java开发手册(黄山版2022)_pdf",  embedding_function=embeddings)
+vectorstore = Chroma(persist_directory="./data/Wen-Tiejun_Ten-Crises_Online-PDF_20210619_REVISED-1-150_pdf",  embedding_function=embeddings)
 retriever = vectorstore.as_retriever()
 
 tool = create_retriever_tool(
