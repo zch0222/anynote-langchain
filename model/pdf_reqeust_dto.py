@@ -6,3 +6,4 @@ class PDFRequestDTO(BaseModel):
     question: str
     user_id: int
     file_key: str
+    model: str

@@ -44,7 +44,7 @@ class RagService:
 
         retriever = self.vectorstore.as_retriever()
         prompt = hub.pull("rlm/rag-prompt")
-        llm = ChatOpenAI(model_name="gpt-3.5-turbo", temperature=0)
+        llm = ChatOpenAI(model_name=pdf_request_dto.model, temperature=0)
         rag_chain = (
                 {"context": retriever | format_docs, "question": RunnablePassthrough()}
                 | prompt
