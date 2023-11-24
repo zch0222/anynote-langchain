@@ -27,18 +27,19 @@ class RagService:
 
     def pdf(self, pdf_request_dto: PDFRequestDTO):
         self.vectorstore = None
-        loader = PyPDFLoader(pdf_request_dto.url)
-        docs = loader.load_and_split()
-        print(docs)
+
         index_path = f"{INDEX_PATH}/{pdf_request_dto.file_key}"
         embeddings = OpenAIEmbeddings()
-        text_splitter = RecursiveCharacterTextSplitter(chunk_size=1000, chunk_overlap=200)
-        splits = text_splitter.split_documents(docs)
         if os.path.exists(index_path) and os.path.isdir(index_path):
             print("use persist")
             self.vectorstore = Chroma(persist_directory=index_path, embedding_function=embeddings)
         else:
             print("indexing............")
+            loader = PyPDFLoader(pdf_request_dto.url)
+            docs = loader.load_and_split()
+            print(docs)
+            text_splitter = RecursiveCharacterTextSplitter(chunk_size=1000, chunk_overlap=200)
+            splits = text_splitter.split_documents(docs)
             self.vectorstore = Chroma.from_documents(documents=splits, embedding=embeddings, persist_directory=index_path)
 
         retriever = self.vectorstore.as_retriever()
