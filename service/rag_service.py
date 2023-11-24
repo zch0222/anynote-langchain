@@ -38,8 +38,7 @@ class RagService:
             print("indexing............")
             text_splitter = RecursiveCharacterTextSplitter(chunk_size=1000, chunk_overlap=200)
             splits = text_splitter.split_documents(docs)
-            self.vectorstore = Chroma.from_documents(documents=splits, embedding=embeddings)
-            self.vectorstore.persist(directory=index_path)
+            self.vectorstore = Chroma.from_documents(documents=splits, embedding=embeddings, persist_directory=index_path)
 
         retriever = self.vectorstore.as_retriever()
         prompt = hub.pull("rlm/rag-prompt")
