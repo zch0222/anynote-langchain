@@ -21,15 +21,17 @@ from langchain.chat_models import ChatOpenAI
 dotenv.load_dotenv()
 print(os.environ["OPENAI_API_KEY"])
 
-loader = PyPDFLoader("./data/2022.pdf")
-docs = loader.load_and_split()
+# loader = PyPDFLoader("./data/2022.pdf")
+# docs = loader.load_and_split()
+#
+# print(docs)
+#
+# text_splitter = RecursiveCharacterTextSplitter(chunk_size=1000, chunk_overlap=200)
+# splits = text_splitter.split_documents(docs)
 
-print(docs)
+embeddings = OpenAIEmbeddings()
 
-text_splitter = RecursiveCharacterTextSplitter(chunk_size=1000, chunk_overlap=200)
-splits = text_splitter.split_documents(docs)
-
-vectorstore = Chroma.from_documents(documents=splits, embedding=OpenAIEmbeddings())
+vectorstore = Chroma(persist_directory="./data/阿里巴巴Java开发手册(黄山版2022)_pdf",  embedding_function=embeddings)
 retriever = vectorstore.as_retriever()
 
 tool = create_retriever_tool(
