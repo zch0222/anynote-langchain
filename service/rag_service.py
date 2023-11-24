@@ -36,7 +36,7 @@ class RagService:
         splits = text_splitter.split_documents(docs)
         if os.path.exists(index_path) and os.path.isdir(index_path):
             print("use persist")
-            self.vectorstore = Chroma(persist_directory=index_path)
+            self.vectorstore = Chroma(persist_directory=index_path, embedding_function=embeddings)
         else:
             print("indexing............")
             self.vectorstore = Chroma.from_documents(documents=splits, embedding=embeddings, persist_directory=index_path)
