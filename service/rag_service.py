@@ -1,8 +1,9 @@
 from fastapi import Depends
-from core import get_redis
+from core import get_redis, INDEX_PATH
 import redis
 import time
 import json
+import os
 from model import ResData, PdfVO
 from langchain.embeddings import OpenAIEmbeddings
 from langchain.schema import StrOutputParser
@@ -21,15 +22,26 @@ class RagService:
 
     def __init__(self, redis_client: redis.Redis = Depends(get_redis)):
         self.redis_client = redis_client
+        self.vectorstore = None
 
     def pdf(self, pdf_request_dto: PDFRequestDTO):
+        self.vectorstore = None
         loader = PyPDFLoader(pdf_request_dto.url)
         docs = loader.load_and_split()
         print(docs)
-        text_splitter = RecursiveCharacterTextSplitter(chunk_size=1000, chunk_overlap=200)
-        splits = text_splitter.split_documents(docs)
-        vectorstore = Chroma.from_documents(documents=splits, embedding=OpenAIEmbeddings())
-        retriever = vectorstore.as_retriever()
+        index_path = f"{INDEX_PATH}/{pdf_request_dto.file_key}"
+        embeddings = OpenAIEmbeddings()
+        if os.path.exists(index_path) and os.path.isdir(index_path):
+            print("use persist")
+            self.vectorstore = Chroma.from_documents(persist_directory=index_path, embedding_function=embeddings)
+        else:
+            print("indexing............")
+            text_splitter = RecursiveCharacterTextSplitter(chunk_size=1000, chunk_overlap=200)
+            splits = text_splitter.split_documents(docs)
+            self.vectorstore = Chroma.from_documents(documents=splits, embedding=embeddings)
+            self.vectorstore.persist(persist_directory=index_path)
+
+        retriever = self.vectorstore.as_retriever()
         prompt = hub.pull("rlm/rag-prompt")
         llm = ChatOpenAI(model_name="gpt-3.5-turbo", temperature=0)
         rag_chain = (
