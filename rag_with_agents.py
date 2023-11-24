@@ -36,8 +36,8 @@ retriever = vectorstore.as_retriever()
 
 tool = create_retriever_tool(
     retriever,
-    "search_2022_pdf",
-    "Searches and returns documents regarding the 2022.pdf.",
+    "search_Wen-Tiejun_Ten-Crises_Online-PDF_20210619_REVISED-1-150_pdf",
+    "Searches and returns documents regarding the Wen-Tiejun_Ten-Crises_Online-PDF_20210619_REVISED-1-150.pdf.",
 )
 
 tools = [tool]
