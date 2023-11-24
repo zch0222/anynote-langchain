@@ -39,7 +39,7 @@ class RagService:
             text_splitter = RecursiveCharacterTextSplitter(chunk_size=1000, chunk_overlap=200)
             splits = text_splitter.split_documents(docs)
             self.vectorstore = Chroma.from_documents(documents=splits, embedding=embeddings)
-            self.vectorstore.persist_to_directory(directory=index_path)
+            self.vectorstore.persist(directory=index_path)
 
         retriever = self.vectorstore.as_retriever()
         prompt = hub.pull("rlm/rag-prompt")
