@@ -42,7 +42,7 @@ tool = create_retriever_tool(
 
 tools = [tool]
 
-llm = ChatOpenAI(temperature=0)
+llm = ChatOpenAI(model_name="gpt-4-1106-preview", temperature=0)
 
 agent_executor = create_conversational_retrieval_agent(llm, tools, verbose=True)
 
