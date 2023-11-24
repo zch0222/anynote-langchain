@@ -31,13 +31,13 @@ class RagService:
         print(docs)
         index_path = f"{INDEX_PATH}/{pdf_request_dto.file_key}"
         embeddings = OpenAIEmbeddings()
+        text_splitter = RecursiveCharacterTextSplitter(chunk_size=1000, chunk_overlap=200)
+        splits = text_splitter.split_documents(docs)
         if os.path.exists(index_path) and os.path.isdir(index_path):
             print("use persist")
-            self.vectorstore = Chroma.from_documents(persist_directory=index_path, embedding_function=embeddings)
+            self.vectorstore = Chroma.from_documents(documents=splits, persist_directory=index_path, embedding_function=embeddings)
         else:
             print("indexing............")
-            text_splitter = RecursiveCharacterTextSplitter(chunk_size=1000, chunk_overlap=200)
-            splits = text_splitter.split_documents(docs)
             self.vectorstore = Chroma.from_documents(documents=splits, embedding=embeddings, persist_directory=index_path)
 
         retriever = self.vectorstore.as_retriever()
