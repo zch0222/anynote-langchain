@@ -4,7 +4,11 @@ from starlette.requests import Request
 from starlette.responses import JSONResponse
 from model.vo import ResData
 from core.logger import get_logger
+from controller.chat_controller import chat_router
+
 app = FastAPI()
+
+app.include_router(chat_router)
 
 # 鉴权
 @app.middleware("http")
