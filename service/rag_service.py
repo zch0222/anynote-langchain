@@ -1,5 +1,6 @@
 
 from constants.rag_constants import RAG_PDF_DIR
+from core.config import RAG_LLM_MODEL
 from exceptions.business_exception import BusinessException
 from model.dto import FileDownloadDTO
 from utils.file_util import download_file
@@ -24,6 +25,7 @@ from core.executors import executor
 from core.redis_server import RedisServer
 from core.redis import get_redis_pool
 from constants.redis_channel_constants import RAG_TASK_CHANNEL
+from utils.model_util import get_model
 
 
 
@@ -94,7 +96,7 @@ class RagService:
         return retrieved_docs
 
     def rag(self, doc_url: str, questions: str):
-        rag_model = ChatOllama(model="llama3.2")
+        rag_model = get_model(RAG_LLM_MODEL)
         # rag_model = ChatOpenAI(model="gpt-4o")
         prompt = hub.pull("rlm/rag-prompt")
         # prompt.invoke({
