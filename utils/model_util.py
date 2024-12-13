@@ -5,7 +5,7 @@ def get_ollama_model(model: str):
     return ChatOllama(model=model)
 
 def get_openai_model(model: str):
-    return
+    return ChatOpenAI(model=model)
 
 def get_model(model: str):
     split_model = model.split(':')
