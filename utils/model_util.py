@@ -8,7 +8,7 @@ def get_openai_model(model: str):
     return ChatOpenAI(model=model)
 
 def get_model(model: str):
-    split_model = model.split(':')
+    split_model = model.split('_')
     print(split_model)
     if split_model[0] == "ollama":
         return get_ollama_model(split_model[1])
