@@ -1,3 +1,4 @@
+from concurrent.futures import ProcessPoolExecutor
 
 from constants.rag_constants import RAG_PDF_DIR
 from core.config import RAG_LLM_MODEL, RAG_EMBEDDING_MODEL
@@ -21,7 +22,6 @@ import asyncio
 from core.logger import get_logger
 import time
 import json
-from core.executors import executor
 from core.redis_server import RedisServer
 from core.redis import get_redis_pool
 from constants.redis_channel_constants import RAG_TASK_CHANNEL
@@ -152,6 +152,7 @@ class RagService:
             "result": ""
         }))
         # # asyncio.get_running_loop().run_in_executor(executor, self.run_rag, rag_query_dto.doc_url, rag_query_dto.prompt, task_id)
+        executor = ProcessPoolExecutor(max_workers=1)
         executor.submit(self.run_rag, rag_query_dto.doc_url, rag_query_dto.prompt, task_id)
         heartbeat_task = asyncio.create_task(self.send_heartbeat(task_id))
 
@@ -169,7 +170,7 @@ class RagService:
         except Exception as e:
             self.logger.exception(e)
         finally:
-            pass
+            executor.shutdown(wait=True)
             if not heartbeat_task.done():
                 heartbeat_task.cancel()
 
