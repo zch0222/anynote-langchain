@@ -94,7 +94,7 @@ class RagService:
         return retrieved_docs
 
     def rag(self, doc_url: str, questions: str):
-        rag_model = ChatOllama(model="qwen2")
+        rag_model = ChatOllama(model="llama3.2")
         # rag_model = ChatOpenAI(model="gpt-4o")
         prompt = hub.pull("rlm/rag-prompt")
         # prompt.invoke({
