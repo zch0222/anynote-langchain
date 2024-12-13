@@ -1,6 +1,6 @@
 
 from constants.rag_constants import RAG_PDF_DIR
-from core.config import RAG_LLM_MODEL
+from core.config import RAG_LLM_MODEL, RAG_EMBEDDING_MODEL
 from exceptions.business_exception import BusinessException
 from model.dto import FileDownloadDTO
 from utils.file_util import download_file
@@ -25,7 +25,7 @@ from core.executors import executor
 from core.redis_server import RedisServer
 from core.redis import get_redis_pool
 from constants.redis_channel_constants import RAG_TASK_CHANNEL
-from utils.model_util import get_model
+from utils.model_util import get_model, get_embedding_model
 
 
 
@@ -64,7 +64,7 @@ class RagService:
         return vector_store_from_client
 
     def get_embeddings(self):
-        return HuggingFaceEmbeddings(model_name="BAAI/bge-base-zh-v1.5")
+        return get_embedding_model(RAG_EMBEDDING_MODEL)
         # return OpenAIEmbeddings(model="text-embedding-3-small")
 
     def download_docs(self, doc_url: str, dest_folder: str) -> FileDownloadDTO:
