@@ -64,7 +64,7 @@ class RagService:
         return vector_store_from_client
 
     def get_embeddings(self):
-        return HuggingFaceEmbeddings(model_name="BAAI/bge-m3")
+        return HuggingFaceEmbeddings(model_name="BAAI/bge-base-zh-v1.5")
         # return OpenAIEmbeddings(model="text-embedding-3-small")
 
     def download_docs(self, doc_url: str, dest_folder: str) -> FileDownloadDTO:
