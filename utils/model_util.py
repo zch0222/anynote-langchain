@@ -9,7 +9,7 @@ def get_openai_model(model: str):
     return ChatOpenAI(model=model)
 
 def get_huggingface_embeddings(model: str):
-    return HuggingFaceEmbeddings(model=model)
+    return HuggingFaceEmbeddings(model_name=model)
 
 
 def get_model(model: str):
