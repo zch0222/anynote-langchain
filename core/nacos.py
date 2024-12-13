@@ -21,5 +21,5 @@ class NacosClient:
 
     async def sent_heartbeat(self):
         res = self.nacos_client.send_heartbeat(self.nacos_service_name, HOST, PORT)
-        self.logger.info(str(res))
+        # self.logger.info(str(res))
 
