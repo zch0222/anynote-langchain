@@ -128,12 +128,20 @@ class RagService:
             "status": "running",
             "result": ""
         })
-        res = self.rag(doc_url, questions)
-        redis_server.publish(f"{RAG_TASK_CHANNEL}:{task_id}", {
-            "id": task_id,
-            "status": "finished",
-            "result": res
-        })
+        try:
+            res = self.rag(doc_url, questions)
+            redis_server.publish(f"{RAG_TASK_CHANNEL}:{task_id}", {
+                "id": task_id,
+                "status": "finished",
+                "result": res
+            })
+        except Exception as e:
+            self.logger.exception(e)
+            redis_server.publish(f"{RAG_TASK_CHANNEL}:{task_id}", {
+                "id": task_id,
+                "status": "failed",
+                "result": str(e)
+            })
 
     async def a_rag(self, rag_query_dto: RagQueryDTO, task_id: str):
         yield 'id: {}\nevent: message\ndata: {}\n\n'.format(int(time.time()), json.dumps({
@@ -154,7 +162,7 @@ class RagService:
                 self.logger.info(msg)
                 msg_data = json.loads(msg)
                 yield 'id: {}\nevent: message\ndata: {}\n\n'.format(int(time.time()), msg_data)
-                if msg_data["status"] == "finished":
+                if msg_data["status"] == "finished" or msg_data["status"] == "failed":
                     break
         except Exception as e:
             self.logger.exception(e)
