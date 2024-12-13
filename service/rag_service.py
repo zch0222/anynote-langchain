@@ -161,7 +161,7 @@ class RagService:
             async for msg in RedisServer().subscribe(f"{RAG_TASK_CHANNEL}:{task_id}"):
                 self.logger.info(msg)
                 msg_data = json.loads(msg)
-                yield 'id: {}\nevent: message\ndata: {}\n\n'.format(int(time.time()), msg_data)
+                yield 'id: {}\nevent: message\ndata: {}\n\n'.format(int(time.time()), msg)
                 if msg_data["status"] == "finished" or msg_data["status"] == "failed":
                     break
         except Exception as e:
