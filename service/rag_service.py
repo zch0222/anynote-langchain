@@ -43,8 +43,8 @@ class RagService:
         pass
 
     def get_vectorstore(self, file_download_dto: FileDownloadDTO):
-        chroma_client = chromadb.HttpClient(host='localhost', port=8000)
-        # chroma_client = chromadb.Client()
+        # chroma_client = chromadb.HttpClient(host='localhost', port=8000)
+        chroma_client = chromadb.Client()
 
         embeddings = self.get_embeddings()
         collection_name = f"doc_{mmh3.hash(file_download_dto.hash_value, 0, False)}"
