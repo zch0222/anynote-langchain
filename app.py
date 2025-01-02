@@ -1,11 +1,12 @@
 from fastapi import FastAPI, HTTPException
-from core.config import HOST, TOKEN, PORT
+from core.config import HOST, TOKEN, PORT, APP_HOST
 from starlette.requests import Request
 from starlette.responses import JSONResponse
 from model.vo import ResData
 from core.logger import get_logger
 from controller.chat_controller import chat_router
 from controller.rag_controller import rag_router
+from controller.whisper_controller import whisper_router
 from init.check_data_path import check_data_path
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from contextlib import asynccontextmanager
@@ -32,6 +33,7 @@ app = FastAPI(lifespan=lifespan)
 
 app.include_router(chat_router)
 app.include_router(rag_router)
+app.include_router(whisper_router)
 
 
 
@@ -83,7 +85,8 @@ def init():
 
 if __name__ == "__main__":
     init()
-
+    print(HOST, APP_HOST)
+    print(TOKEN)
     import uvicorn
 
-    uvicorn.run(app="app:app", host=HOST, port=PORT, workers=1)
+    uvicorn.run(app="app:app", host=APP_HOST, port=PORT, workers=1)
