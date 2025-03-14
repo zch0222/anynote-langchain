@@ -17,6 +17,9 @@ GITHUB_TOKEN = os.environ.get("GITHUB_TOKEN")
 CODE_EMBEDDING_MODEL = os.environ.get("CODE_EMBEDDING_MODEL")
 WHISPER_MODEL = os.environ.get("WHISPER_MODEL")
 
+DEEP_SEEK_URL = os.environ.get("DEEP_SEEK_URL")
+DEEP_SEEK_API_KEY = os.environ.get("DEEP_SEEK_API_KEY")
+
 # OSS配置
 OSS_TYPE = os.environ.get("OSS_TYPE")
 

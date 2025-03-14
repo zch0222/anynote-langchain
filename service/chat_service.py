@@ -23,6 +23,7 @@ from typing import List
 from core.config import OPENAI_API_BASE, HTTP_PROXY, HTTPS_PROXY
 from langchain_community.tools import DuckDuckGoSearchResults
 from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
+from utils.model_util import get_model
 
 
 class ChatService:
@@ -243,6 +244,15 @@ class ChatService:
         llm_with_tools = model.bind_tools([DuckDuckGoSearchResults()])
         yield from self.run_chat_model_with_tools_stream(llm_with_tools, chat_dto, False)
 
+    def chat_model(self, chat_dto: ChatDTO):
+        model = get_model(chat_dto.model)
+        messages = self.build_messages(chat_dto.messages)
+        print(messages)
+        for chunk in model.stream(messages):
+            if isinstance(chunk, AIMessage):
+                yield from self.yield_results(chat_dto.model, chunk.content)
+
+
     def chat(self, chat_dto: ChatDTO):
         print(chat_dto.model)
         # self.logger(F"{json.dumps(chat_dto)}")
@@ -265,4 +275,4 @@ class ChatService:
         elif CHAT_MODELS["GPT_4_TURBO_PREVIEW_WEB_SEARCH_V2"] == chat_dto.model:
             yield from self.gpt4_turbo_preview_search_v2(chat_dto)
         else:
-            yield from self.chat_openai(chat_dto)
+            yield from self.chat_model(chat_dto)
