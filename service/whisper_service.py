@@ -1,6 +1,7 @@
 import whisper
 from constants.whiser_constants import WHISPER_FILE_PATH
 from model.dto import FileDownloadDTO
+from model.dto.whisper_run_dto import WhisperRunDTO
 from utils.file_util import download_file
 from model.dto import AudioTranscriptionDTO
 from core.redis_server import RedisServer
@@ -10,6 +11,10 @@ from enums.whisper_task_status import WhisperTaskStatus
 from core.logger import get_logger
 from concurrent.futures import ProcessPoolExecutor
 import json, time
+from core.rocketmq import send_message
+from enums.rocketmq_tags import RocketMQTags
+from enums.rocketmq_topics import RocketMQTopics
+from core.openai_whisper import get_openai_whisper_client
 
 class WhisperService:
 
@@ -110,7 +115,59 @@ class WhisperService:
             executor.shutdown(wait=True)
             if not hearbeat_task.done():
                 hearbeat_task.cancel()
-        
+
+    def do_whisper_task(self, whisper_run_dto: WhisperRunDTO, task_id: str):
+        send_message(RocketMQTopics.NOTE_TOPIC.value, RocketMQTags.WHISPER_TASK_STATUS_UPDATED.value,
+                     json.dumps({
+                         "whisperTaskStatusVO": {
+                             "type": "STATUS_UPDATE",
+                             "status": "DOWNLOADING",
+                             "taskId": task_id
+                         }
+                     }))
+        file_dto = self.download_audio(whisper_run_dto.url)
+        whisper_client = get_openai_whisper_client()
+        send_message(RocketMQTopics.NOTE_TOPIC.value, RocketMQTags.WHISPER_TASK_STATUS_UPDATED.value,
+                     json.dumps({
+                         "whisperTaskStatusVO": {
+                             "type": "STATUS_UPDATE",
+                             "status": "RUNNING",
+                             "taskId": task_id
+                         }
+                     }))
+        try:
+            transcription = whisper_client.audio.transcriptions.create(
+                model="whisper-1",
+                file=file_dto.file_path,
+                response_format='text'
+            )
+            send_message(RocketMQTopics.NOTE_TOPIC.value, RocketMQTags.WHISPER_TASK_STATUS_UPDATED.value,
+                         json.dumps({
+                             "whisperTaskStatusVO": {
+                                 "type": "STATUS_UPDATE",
+                                 "status": "FINISHED",
+                                 "taskId": task_id,
+                                 "result": {
+                                     "text": transcription.text
+                                 }
+                             }
+                         }))
+        except Exception as e:
+            self.logger.exception(e)
+            send_message(RocketMQTopics.NOTE_TOPIC.value, RocketMQTags.WHISPER_TASK_STATUS_UPDATED.value,
+                         json.dumps({
+                             "whisperTaskStatusVO": {
+                                 "type": "STATUS_UPDATE",
+                                 "status": "FAILED",
+                                 "taskId": task_id
+                             }
+                         }))
+
+
+
+
+    async def submit_whisper_task(self, whisper_run_dto: WhisperRunDTO):
+        pass
 
         
 

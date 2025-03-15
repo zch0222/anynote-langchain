@@ -250,6 +250,7 @@ class ChatService:
         print(messages)
         for chunk in model.stream(messages):
             if isinstance(chunk, AIMessage):
+                print(chunk)
                 yield from self.yield_results(chat_dto.model, chunk.content)
 
 
