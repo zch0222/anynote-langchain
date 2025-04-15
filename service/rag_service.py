@@ -26,6 +26,7 @@ from core.redis_server import RedisServer
 from core.redis import get_redis_pool
 from constants.redis_channel_constants import RAG_TASK_CHANNEL
 from utils.model_util import get_model, get_embedding_model
+from constants.rag_constants import RAG_CHROMADB_PATH
 
 
 
@@ -44,24 +45,36 @@ class RagService:
 
     def get_vectorstore(self, file_download_dto: FileDownloadDTO):
         # chroma_client = chromadb.HttpClient(host='localhost', port=8000)
-        chroma_client = chromadb.Client()
-
+        chroma_client = chromadb.PersistentClient(path=RAG_CHROMADB_PATH)
         embeddings = self.get_embeddings()
-        collection_name = f"doc_{mmh3.hash(file_download_dto.hash_value, 0, False)}"
-        vector_store_from_client = Chroma(
-            client=chroma_client,
-            # collection_name=collection_name,
-            embedding_function=embeddings,
-        )
-        # l = chroma_client.list_collections()
-        # if collection_name in [c.name for c in chroma_client.list_collections()]:
-        #     return vector_store_from_client
 
+        # 生成唯一且稳定的集合名称
+        collection_name = f"doc_{mmh3.hash(file_download_dto.hash_value, 0, False)}"
+
+        # 获取或创建集合
         collection = chroma_client.get_or_create_collection(collection_name)
+
+        # 初始化Chroma时绑定指定集合
+        vector_store = Chroma(
+            client=chroma_client,
+            collection_name=collection_name,
+            embedding_function=embeddings
+        )
+
+        # 检查集合是否已存在文档（通过count判断）
+        if collection.count() > 0:
+            self.logger.info("文档存在使用本地")
+            return vector_store
+
+        # 仅当集合为空时执行以下操作
         docs = self.load_pdf(file_download_dto)
         text_splitter = self.get_text_splitter()
-        vector_store_from_client.add_documents(documents=text_splitter.split_documents(docs), collection=collection)
-        return vector_store_from_client
+        splits = text_splitter.split_documents(docs)
+
+        # 添加文档到集合（会自动持久化到本地）
+        vector_store.add_documents(splits)
+
+        return vector_store
 
     def get_embeddings(self):
         return get_embedding_model(RAG_EMBEDDING_MODEL)
